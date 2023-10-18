@@ -4,13 +4,14 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol"; 
 import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "forge-std/console.sol"; 
-//import "@openzeppelin/contracts/access/Ownable.sol";
 contract BlindBoxNFT is ERC721{
     mapping(uint256=>bool) private usedTokenID;
     string customBaseURI;
+    address owner;
 
-    constructor() ERC721("BlindBoxNFT", "BBNFT") {
+    constructor(address _owner) ERC721("BlindBoxNFT", "BBNFT") {
         customBaseURI="ipfs://Qmdhe87uRvnpbxKEkWTGkpgdFP3RS4bQBLCJWp8vqkQmqp/";
+        owner=_owner;
     }
     
     function mint(address to) public returns(uint256) {
@@ -22,6 +23,7 @@ contract BlindBoxNFT is ERC721{
     }
 
     function setBaseURI(string memory customBaseURI_) external {
+        require(owner==msg.sender,"owner only");
         customBaseURI = customBaseURI_;
     }
 
@@ -33,7 +35,6 @@ contract BlindBoxNFT is ERC721{
     function tokenURI(uint256 tokenId) public view override returns (string memory)
     {
         string memory tokenURI_ = string.concat(customBaseURI,Strings.toString(tokenId),".json");
-        console.log(tokenURI_);
         if (usedTokenID[tokenId]) {
             return tokenURI_;     
         }

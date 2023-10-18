@@ -9,20 +9,22 @@ contract BlindBoxNFTTest is Test {
     BlindBoxNFT blindBoxNFT;
     address user1;
     function setUp() public {
-        blindBoxNFT = new BlindBoxNFT();
         user1 = makeAddr("art");
+        blindBoxNFT = new BlindBoxNFT(user1);
     }
 
     function test_mint() public {
         vm.startPrank(user1);
         vm.warp(1);
-        uint256 tokenId = blindBoxNFT.mint(user1);
-        console.log(tokenId);
-        require(tokenId>0);
+        uint256 tokenId1 = blindBoxNFT.mint(user1);
+        require(tokenId1>0);
         vm.warp(2);
-        tokenId = blindBoxNFT.mint(user1);
-        require(tokenId>0);
-        console.log(tokenId);
+        uint256 tokenId2 = blindBoxNFT.mint(user1);
+        require(tokenId2>0);
+        require(tokenId1!=tokenId2);
+        console.log("mint 2 NFT tokenId1!= tokenId2");
+        console.log(tokenId1);
+        console.log(tokenId2);
         vm.stopPrank();
 
     }
@@ -31,13 +33,19 @@ contract BlindBoxNFTTest is Test {
         vm.startPrank(user1);
         uint256 tokenId = blindBoxNFT.mint(user1);
         require(tokenId>0);
+
+        //BeforeReveal
         string memory baseURIBeforeReveal="ipfs://Qmdhe87uRvnpbxKEkWTGkpgdFP3RS4bQBLCJWp8vqkQmqp/";
-        string memory baseURIAfterReveal="ipfs://xxxxxxxxxxxxxxxxxxx/";
         assertEq(blindBoxNFT.tokenURI(tokenId), 
         string.concat(baseURIBeforeReveal,Strings.toString(tokenId),".json"));
+
+
+        //AfterReveal
+        string memory baseURIAfterReveal="ipfs://xxxxxxxxxxxxxxxxxxx/";
         blindBoxNFT.setBaseURI(baseURIAfterReveal);
-         assertEq(blindBoxNFT.tokenURI(tokenId), 
+        assertEq(blindBoxNFT.tokenURI(tokenId), 
         string.concat(baseURIAfterReveal,Strings.toString(tokenId),".json"));
+
         vm.stopPrank();
 
     }
